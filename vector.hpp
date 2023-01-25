@@ -14,8 +14,9 @@ namespace ft {
     typedef typename  Allocator::const_reference  const_reference;
     typedef           T                           value_type;
     typedef           size_t                      size_type;
-    typedef           T*                          iterator;
     typedef           Allocator                   allocator_type;
+    typedef           T*                          iterator;
+    typedef           const T*                    const_iterator;
 
 
     private:
@@ -61,6 +62,33 @@ namespace ft {
     reference operator[](size_type n) {
       return _first[n];
     }
+  };
+  // ITERATORS
+  iterator begin() {
+      return _first;
+    }
+  const_iterator begin() const {
+    return _first;
+      }
+  iterator end() {
+    return _last + 1;
+      }
+  const_iterator end() const {
+    return _last + 1;
+    }
+
+  // MODIFIERS
+  iterator insert (iterator position, const value_type& val) {
+    if (_last == _last_allocated) {
+      _alloc.allocate(sizeof(value_type));
+    } else {
+      for (const_iterator it = end(); it != position ; it--) {
+            *(it + 1) = *it;
+    }
+      *position = val;
+    }
+    }
+  }
   };
 }
 
