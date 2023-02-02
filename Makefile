@@ -16,16 +16,16 @@ $(OBJDIR)/%.o: %.cpp
 $(NAME): $(OBJS)
 	$(CC) $(CFLAGS) -D NAMESPACE=$n $(OBJS) -o $(NAME)
 
-debug: CFLAGS += -g -fsanitize=address -fno-omit-frame-pointer
+debug: CFLAGS += -g3 -fsanitize=address -fno-omit-frame-pointer
 debug: re
 
 tester:
 	$(MAKE) fclean
-	@echo "FT" > ft.txt
+	# @echo "FT" > ft.txt
 	$(MAKE) n=ft > build_ft.txt
 	./$(NAME) >> ft.txt
 	$(MAKE) fclean --silent
-	@echo "STD" > std.txt
+	# @echo "STD" > std.txt
 	$(MAKE) n=std > build_std.txt
 	./$(NAME) >> std.txt
 	@echo "Differences:"

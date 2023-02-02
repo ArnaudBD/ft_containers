@@ -5,6 +5,7 @@
 #include <iostream>
 #include <iterator>
 #include <limits>
+#include <algorithm>
 
 namespace ft {
   template < class T, class Allocator = std::allocator<T> >
@@ -17,13 +18,13 @@ namespace ft {
     typedef           Allocator                   allocator_type;
     typedef           T*                          iterator;
     typedef           const T*                    const_iterator;
-
+    typedef typename  Allocator::pointer          pointer;
 
     private:
-    value_type* _first;
-    value_type* _last;
-    value_type* _last_allocated;
-    allocator_type _alloc;
+    value_type*                 _first;
+    value_type*                 _last;
+    value_type*                 _last_allocated;
+    std::allocator<value_type>  _alloc;
 
     public:
 
@@ -32,9 +33,11 @@ namespace ft {
       _first = NULL;
       _last = NULL;
       _last_allocated = NULL;
-    };
+    }
+
     explicit vector(size_type n, const T& value = T(), const allocator_type& = allocator_type()) {
       _first = _alloc.allocate(n);
+std::cout << "constructor" << value << std::endl;
       for (size_type i = 0; i < n; ++i) {
         _alloc.construct(_first + i, value);
       }
@@ -47,7 +50,8 @@ namespace ft {
       for (size_type i = 0; i < size(); ++i) {
         _alloc.destroy(_first + i);
       }
-      _alloc.deallocate(_first, size());
+std::cout << "destructor" << *this->begin() << std::endl;
+      _alloc.deallocate(_first, capacity());
     }
 
   // CAPACITY
@@ -58,11 +62,30 @@ namespace ft {
       return _alloc.max_size();
     }
 
-  // ELEMENT ACCES
+    size_type capacity() const {
+      return std::distance(_first, _last_allocated);
+    }
+
+    void reserve (size_type new_cap) {
+      if (new_cap > max_size()) {
+        throw std::length_error("vector::reserve");
+      }
+      if (new_cap > capacity()) {
+        pointer new_first = _alloc.allocate(new_cap);
+        std::uninitialized_copy(_first, _last + 1, new_first);
+        size_type old_size = size();
+        _alloc.deallocate(_first, capacity());
+        _last_allocated = new_first + new_cap;
+        _last = new_first + old_size;
+        _first = new_first;
+      }
+    }
+
+  // ELEMENT ACCESS
     reference operator[](size_type n) {
       return _first[n];
     }
-  };
+
   // ITERATORS
   iterator begin() {
       return _first;
@@ -80,18 +103,46 @@ namespace ft {
   // MODIFIERS
   iterator insert (iterator position, const value_type& val) {
     if (_last == _last_allocated) {
-      _alloc.allocate(sizeof(value_type));
+      pointer new_first = _alloc.allocate(size() * 2);
+      std::uninitialized_copy(_first, position, new_first);
+      std::uninitialized_copy(position, _last, new_first + std::distance(_first, position) + 1);
+      _alloc.construct(new_first + std::distance(_first, position), val);
+      for (size_type i = 0; i < size(); ++i) {
+        _alloc.destroy(_first + i);
+      }
+      _alloc.deallocate(_first, capacity());
+      size_type old_size = size();
+      _first = new_first;
+      _last = _first + old_size + 1;
+      _last_allocated = _first + size() * 2;
     } else {
-      for (const_iterator it = end(); it != position ; it--) {
-            *(it + 1) = *it;
-    }
+      iterator old_last = _last;
+      ++_last;
+      std::copy_backward(position, old_last, position + 1);
       *position = val;
     }
+    return position;
+  }
+
+  void insert (iterator position, size_type n, const value_type& val) {
+    if (n == 0) {
+      return;
+    }
+    if (n > max_size() - size()) {
+      throw std::length_error("vector::insert");
+    }
+    if (n > capacity() - size()) {
+      reserve(size() + n);
+    }
+    iterator old_last = _last;
+    _last += n;
+    std::copy_backward(position, old_last, position + n);
+    for (size_type i = 0; i < n; ++i) {
+      _alloc.construct(position + i, val);
     }
   }
-  };
-}
-
+};
+};
 
 #endif
 /*
