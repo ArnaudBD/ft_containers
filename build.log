@@ -1,4 +1,0 @@
-make[1]: Entering directory '/mnt/nfs/homes/abiju-du/Desktop/42cursus/ft_containers'
-c++ -Wall -Wextra -Werror -std=c++98 -D NAMESPACE=ft -c main.cpp -o obj/main.o
-c++ -Wall -Wextra -Werror -std=c++98 -D NAMESPACE=ft obj/main.o -o CONTAINERS
-make[1]: Leaving directory '/mnt/nfs/homes/abiju-du/Desktop/42cursus/ft_containers'

@@ -1,6 +1,0 @@
-2,3c2,3
-< c++ -Wall -Wextra -Werror -std=c++98 -D NAMESPACE=ft -c main.cpp -o obj/main.o
-< c++ -Wall -Wextra -Werror -std=c++98 -D NAMESPACE=ft obj/main.o -o CONTAINERS
----
-> c++ -Wall -Wextra -Werror -std=c++98 -D NAMESPACE=std -c main.cpp -o obj/main.o
-> c++ -Wall -Wextra -Werror -std=c++98 -D NAMESPACE=std obj/main.o -o CONTAINERS

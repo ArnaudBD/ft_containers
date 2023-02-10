@@ -1,4 +1,4 @@
-NAME = CONTAINERS
+NAME = container
 SRCS = main.cpp
 
 OBJS = $(addprefix $(OBJDIR)/, $(SRCS:.cpp=.o))
@@ -24,7 +24,7 @@ tester:
 	# @echo "FT" > ft.txt
 	$(MAKE) n=ft > build_ft.txt
 	./$(NAME) >> ft.txt
-	$(MAKE) fclean --silent
+	# $(MAKE) fclean --silent
 	# @echo "STD" > std.txt
 	$(MAKE) n=std > build_std.txt
 	./$(NAME) >> std.txt
@@ -50,7 +50,7 @@ clean:
 	$(RM) $(OBJS)
 
 fclean: clean
-	$(RM) $(NAME)
+	$(RM) $(NAME) ft.txt std.txt diff.txt build.log build_std.log clean.log build_ft.txt build_std.txt
 
 re: fclean all
 
