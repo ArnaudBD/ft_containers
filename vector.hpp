@@ -6,11 +6,13 @@
 #include <iterator>
 #include <limits>
 #include <algorithm>
+#include "type_traits.hpp"
 
 namespace ft {
   template < class T, class Allocator = std::allocator<T> >
   class vector
   {
+  public:
     typedef typename  Allocator::reference                  reference;
     typedef typename  Allocator::const_reference            const_reference;
     typedef           T                                     value_type;
@@ -32,11 +34,7 @@ namespace ft {
   public:
 
   // CONSTRUCTORS
-    vector() {
-      _first = NULL;
-      _last = NULL;
-      _last_allocated = NULL;
-    }
+
     explicit vector( const allocator_type& alloc = allocator_type() ) : _alloc(alloc) {
       _first = NULL;
       _last = NULL;
@@ -74,6 +72,42 @@ namespace ft {
       }
       _alloc.deallocate(_first, capacity());
     }
+
+  // ASSIGNMENT OPERATOR
+    vector& operator=(const vector& x) {
+      if (this != &x) {
+        clear();
+        reserve(x.size());
+        std::uninitialized_copy(x.begin(), x.end(), _first);
+        _last = _first + x.size();
+      }
+      return *this;
+    }
+
+  void assign (size_type n, const value_type& val) {
+    aux_assign(n, val, true_type());
+  }
+
+  void aux_assign (size_type n, const value_type& val, true_type) {
+    clear();
+    reserve(n);
+    std::uninitialized_fill_n(_first, n, val);
+    _last = _first + n;
+  }
+
+  template <class InputIterator>
+  void aux_assign (InputIterator first, InputIterator last, false_type) {
+    clear();
+    size_type n = std::distance(first, last);
+    reserve(n);
+    std::uninitialized_copy(first, last, _first);
+    _last = _first + n;
+  }
+
+  template <class InputIterator>
+  void assign (InputIterator first, InputIterator last) {
+    aux_assign(first, last, typename is_integral<InputIterator>::type());
+  }
 
   // CAPACITY
     size_type size() const { return std::distance(_first, _last ); }
@@ -236,10 +270,58 @@ iterator erase(iterator position) {
 
 iterator erase(iterator first, iterator last) {
     iterator i = std::copy(last, end(), first);
-    std::for_each(i, end(), _alloc.destroy);
+    for (; i != end(); ++i)
+      _alloc.destroy(i);
     _last = _last - (last - first);
     return first;
 }
+
+void push_back(const T& x) {
+    if (_last != _last_allocated) {
+  _alloc.construct(_last, x);
+  ++_last;
+    } else
+  insert_aux(end(), x);
+}
+
+void pop_back() {
+    _alloc.destroy(--_last);
+}
+
+void resize(size_type new_size, const T& x) {
+    if (new_size < size()) erase(begin() + new_size, end());
+    else insert(end(), new_size - size(), x);
+}
+
+void resize(size_type new_size) {
+    resize(new_size, T());
+}
+
+void clear() {
+    erase(begin(), end());
+}
+
+// void swap(vector& other) {
+//   vector tmp;
+//   tmp = _first;
+//   _first = other._first;
+//   other._first = tmp._first;
+//   tmp = _last;
+//   _last = other._last;
+//   other._last = tmp._last;
+//   tmp = _last_allocated;
+//   _last_allocated = other._last_allocated;
+//   other._last_allocated = tmp._last_allocated;
+//   tmp = _alloc;
+//   _alloc = other._alloc;
+//   other._alloc = tmp._alloc; 
+// }
+
+//   // ALLOCATOR
+//   allocator_type get_allocator() const {
+//     return _alloc;
+//   }
+
 };
 
 template <class T, class Alloc>
