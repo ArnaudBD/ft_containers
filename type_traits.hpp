@@ -4,7 +4,7 @@
 
 
 
-
+namespace ft {
 template<class T, T v>
 struct integral_constant {
     static const T value = v;
@@ -30,7 +30,7 @@ template<> struct is_integral<long> : public integral_constant<bool, true> {};
 template<> struct is_integral<unsigned long> : public integral_constant<bool, true> {};
 template<> struct is_integral<long long> : public integral_constant<bool, true> {};
 template<> struct is_integral<unsigned long long> : public integral_constant<bool, true> {};
-
+};
 /*
 struct true_type
 {
